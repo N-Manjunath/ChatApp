@@ -29,45 +29,47 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
-  signup: async (data) => {
-    set({ isSigningUp: true });
-    try {
-      const res = await axiosInstance.post("/auth/signup", data);
-      set({ authUser: res.data });
-      toast.success("Account created successfully");
-      get().connectSocket();
-    } catch (error) {
-      toast.error(error.response.data.message);
-    } finally {
-      set({ isSigningUp: false });
-    }
-  },
+ login: async (data) => {
+  set({ isLoggingIn: true });
+  try {
+    const res = await axiosInstance.post("/auth/login", data);
+    localStorage.setItem("token", res.data.token);
+    set({ authUser: res.data });
+    toast.success("Logged in successfully");
+    get().connectSocket();
+  } catch (error) {
+    toast.error(error.response.data.message);
+  } finally {
+    set({ isLoggingIn: false });
+  }
+},
 
-  login: async (data) => {
-    set({ isLoggingIn: true });
-    try {
-      const res = await axiosInstance.post("/auth/login", data);
-      set({ authUser: res.data });
-      toast.success("Logged in successfully");
+signup: async (data) => {
+  set({ isSigningUp: true });
+  try {
+    const res = await axiosInstance.post("/auth/signup", data);
+    localStorage.setItem("token", res.data.token);
+    set({ authUser: res.data });
+    toast.success("Account created successfully");
+    get().connectSocket();
+  } catch (error) {
+    toast.error(error.response.data.message);
+  } finally {
+    set({ isSigningUp: false });
+  }
+},
 
-      get().connectSocket();
-    } catch (error) {
-      toast.error(error.response.data.message);
-    } finally {
-      set({ isLoggingIn: false });
-    }
-  },
-
-  logout: async () => {
-    try {
-      await axiosInstance.post("/auth/logout");
-      set({ authUser: null });
-      toast.success("Logged out successfully");
-      get().disconnectSocket();
-    } catch (error) {
-      toast.error(error.response.data.message);
-    }
-  },
+logout: async () => {
+  try {
+    await axiosInstance.post("/auth/logout");
+    localStorage.removeItem("token");
+    set({ authUser: null });
+    toast.success("Logged out successfully");
+    get().disconnectSocket();
+  } catch (error) {
+    toast.error(error.response.data.message);
+  }
+},
 
   updateProfile: async (data) => {
     set({ isUpdatingProfile: true });
